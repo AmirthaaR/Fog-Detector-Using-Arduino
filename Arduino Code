@@ -1,0 +1,57 @@
+/*
+  FOG DETECTOR USING ARDUINO
+  
+  Fog-Based Smart Headlight System with Buzzer Alert
+  Using Potentiometer 
+
+  - Pot middle pin → A0
+  - Pot sides → 5V & GND
+  - Low beam LED → D5 (with 220Ω)
+  - High beam LED → D6 (with 220Ω)
+  - Buzzer + → D8 , Buzzer – → GND
+*/
+
+const int sensorPin = A0;
+const int lowBeam = 5;
+const int highBeam = 6;
+const int buzzer = 8;       
+
+int sensorValue = 0;
+int brightThreshold = 700;
+int lowThreshold = 400;
+
+void setup() {
+  pinMode(lowBeam, OUTPUT);
+  pinMode(highBeam, OUTPUT);
+  pinMode(buzzer, OUTPUT);
+  Serial.begin(9600);
+}
+
+void loop() {
+  sensorValue = analogRead(sensorPin);
+  Serial.print("Light level: ");
+  Serial.println(sensorValue);
+
+  if (sensorValue > brightThreshold) {
+    digitalWrite(lowBeam, LOW);
+    digitalWrite(highBeam, LOW);
+    digitalWrite(buzzer, LOW);
+    Serial.println("Condition: Bright -> Headlights OFF");
+  }
+  else if (sensorValue > lowThreshold && sensorValue <= brightThreshold) {
+    analogWrite(lowBeam, 150);
+    digitalWrite(highBeam, LOW);
+    digitalWrite(buzzer, LOW);
+    Serial.println("Condition: Dim/Fog -> Low Beam ON");
+  }
+  else {
+    digitalWrite(lowBeam, LOW);
+    digitalWrite(highBeam, HIGH);
+    tone(buzzer, 1000);   
+    delay(500);
+    noTone(buzzer);       
+    Serial.println("Condition: Very Dark -> High Beam ON + Fog Alert");
+  }
+
+  delay(300);
+}
